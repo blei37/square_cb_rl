@@ -21,7 +21,7 @@ from absl.testing import parameterized
 from bsuite import bsuite
 from bsuite import sweep
 from bsuite.baselines import experiment
-from bsuite.baselines.tf import dqn
+from bsuite.baselines.tf import boot_dqn_squarecb as boot_dqn
 
 
 class RunTest(parameterized.TestCase):
@@ -30,8 +30,8 @@ class RunTest(parameterized.TestCase):
   def test_run(self, bsuite_id: str):
     env = bsuite.load_from_id(bsuite_id)
 
-    agent = dqn.default_agent(
-        env.observation_spec(), env.action_spec())
+    agent = boot_dqn.default_agent(
+        env.observation_spec(), env.action_spec(), num_ensemble=2)
 
     experiment.run(
         agent=agent,
