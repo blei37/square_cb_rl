@@ -2,6 +2,8 @@ import bsuite
 from bsuite.baselines import experiment
 from bsuite.baselines.tf import dqn
 from bsuite.baselines.tf import boot_dqn
+from bsuite.baselines.tf import boot_dqn_squarecb
+from bsuite.baselines.tf import boot_dqn_ucb
 from bsuite import sweep
 import bsuite.logging
 import bsuite.experiments
@@ -15,17 +17,20 @@ print("STARTING TEST SCRIPT\n")
 #         .format(bsuite_id, sweep.SETTINGS[bsuite_id], env.bsuite_num_episodes))
 
 # ADD AGENTS NAMES HERE
-agent_names = ['dqn']
+agent_names = ['boot_dqn', 'boot_dqn_squarecb', 'boot_dqn_ucb']
 def getEnvAgent(bsuite_id, ag):
       SAVE_PATH = './logs/' + ag
+      ENV = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
 
       #baseline
-      ENV = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
       AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
 
-      if ag == 'dqn':
-            ENV = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
+      if ag == 'boot_dqn':
             AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
+      elif ag == "boot_dqn_squarecb":
+            AGENT = boot_dqn_squarecb.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
+      elif ag == "boot_dqn_ucb":
+            AGENT = boot_dqn_ucb.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
       
       # ADD AGENT INFORMATION HERE
       return ENV, AGENT
