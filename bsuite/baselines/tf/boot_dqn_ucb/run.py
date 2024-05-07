@@ -22,7 +22,7 @@ import bsuite
 from bsuite import sweep
 
 from bsuite.baselines import experiment
-from bsuite.baselines.tf import boot_dqn
+from bsuite.baselines.tf import boot_dqn_ucb
 from bsuite.baselines.utils import pool
 
 import sonnet as snt
@@ -74,14 +74,14 @@ def run(bsuite_id: str) -> str:
       overwrite=FLAGS.overwrite,
   )
 
-  ensemble = boot_dqn.make_ensemble(
+  ensemble = boot_dqn_ucb.make_ensemble(
       num_actions=env.action_spec().num_values,
       num_ensemble=FLAGS.num_ensemble,
       num_hidden_layers=FLAGS.num_hidden_layers,
       num_units=FLAGS.num_units,
       prior_scale=FLAGS.prior_scale)
 
-  agent = boot_dqn.BootstrappedDqn(
+  agent = boot_dqn_ucb.BootstrappedDqn(
       obs_spec=env.observation_spec(),
       action_spec=env.action_spec(),
       ensemble=ensemble,
