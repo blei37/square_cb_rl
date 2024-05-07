@@ -14,12 +14,18 @@ print("STARTING TEST SCRIPT\n")
 agents = ['dqn']
 def getEnvAgent(bsuite_id, agent):
       SAVE_PATH_BASE = './logs/tests/'
+
+      #baseline
+      SAVE_PATH = SAVE_PATH_BASE + agent
+      ENV = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
+      AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
       if agent == 'dqn':
             SAVE_PATH = SAVE_PATH_BASE + agent
             ENV = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
             AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
-            return ENV, AGENT
+      
       # ADD AGENT INFORMATION HERE
+      return ENV, AGENT
 
 
 
