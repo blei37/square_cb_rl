@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-"""Run a Dqn agent instance (using TensorFlow 2) on a bsuite experiment."""
+"""Run agent on a bsuite experiment."""
 
 from absl import app
 from absl import flags
@@ -22,7 +22,7 @@ import bsuite
 from bsuite import sweep
 
 from bsuite.baselines import experiment
-from bsuite.baselines.tf import dqn
+from bsuite.baselines.tf import boot_dqn_squarecb as boot_dqn
 from bsuite.baselines.utils import pool
 
 import sonnet as snt
@@ -39,25 +39,33 @@ flags.DEFINE_enum('logging_mode', 'csv', ['csv', 'sqlite', 'terminal'],
 flags.DEFINE_boolean('overwrite', False, 'overwrite csv logging if found')
 flags.DEFINE_integer('num_episodes', None, 'Overrides number of training eps.')
 
+# Network options
+flags.DEFINE_integer('num_ensemble', 20, 'number of ensemble networks')
 flags.DEFINE_integer('num_hidden_layers', 2, 'number of hidden layers')
 flags.DEFINE_integer('num_units', 50, 'number of units per hidden layer')
-flags.DEFINE_integer('batch_size', 32, 'size of batches sampled from replay')
+flags.DEFINE_float('prior_scale', 3., 'scale for additive prior network')
+
+# Core DQN options
+flags.DEFINE_integer('batch_size', 128, 'size of batches sampled from replay')
 flags.DEFINE_float('discount', .99, 'discounting on the agent side')
 flags.DEFINE_integer('replay_capacity', 100000, 'size of the replay buffer')
-flags.DEFINE_integer('min_replay_size', 128, 'min replay size before training.')
+flags.DEFINE_integer('min_replay_size', 128, 'min transitions for sampling')
 flags.DEFINE_integer('sgd_period', 1, 'steps between online net updates')
 flags.DEFINE_integer('target_update_period', 4,
                      'steps between target net updates')
+flags.DEFINE_float('mask_prob', 0.5, 'probability for bootstrap mask')
+flags.DEFINE_float('noise_scale', 0.0, 'std of additive target noise')
 flags.DEFINE_float('learning_rate', 1e-3, 'learning rate for optimizer')
-flags.DEFINE_float('epsilon', 0.05, 'fraction of exploratory random actions')
 flags.DEFINE_integer('seed', 42, 'seed for random number generation')
+flags.DEFINE_float('epsilon', 0.0, 'fraction of exploratory random actions')
 flags.DEFINE_boolean('verbose', True, 'whether to log to std output')
+
 
 FLAGS = flags.FLAGS
 
 
 def run(bsuite_id: str) -> str:
-  """Runs a DQN agent on a given bsuite environment, logging to CSV."""
+  """Runs a BDQN agent on a given bsuite environment, logging to CSV."""
 
   env = bsuite.load_and_record(
       bsuite_id=bsuite_id,
@@ -66,27 +74,30 @@ def run(bsuite_id: str) -> str:
       overwrite=FLAGS.overwrite,
   )
 
-  # Making the networks.
-  hidden_units = [FLAGS.num_units] * FLAGS.num_hidden_layers
-  network = snt.Sequential([
-      snt.Flatten(),
-      snt.nets.MLP(hidden_units + [env.action_spec().num_values]),
-  ])
-  optimizer = snt.optimizers.Adam(learning_rate=FLAGS.learning_rate)
+  ensemble = boot_dqn.make_ensemble(
+      num_actions=env.action_spec().num_values,
+      num_ensemble=FLAGS.num_ensemble,
+      num_hidden_layers=FLAGS.num_hidden_layers,
+      num_units=FLAGS.num_units,
+      prior_scale=FLAGS.prior_scale)
 
-  agent = dqn.DQN(
+  agent = boot_dqn.BootstrappedDqnSquareCB(
+      obs_spec=env.observation_spec(),
       action_spec=env.action_spec(),
-      network=network,
+      ensemble=ensemble,
       batch_size=FLAGS.batch_size,
       discount=FLAGS.discount,
       replay_capacity=FLAGS.replay_capacity,
       min_replay_size=FLAGS.min_replay_size,
       sgd_period=FLAGS.sgd_period,
       target_update_period=FLAGS.target_update_period,
-      optimizer=optimizer,
-      epsilon=FLAGS.epsilon,
-      seed=FLAGS.seed,
-  )
+      optimizer=snt.optimizers.Adam(learning_rate=FLAGS.learning_rate),
+      mask_prob=FLAGS.mask_prob,
+      noise_scale=FLAGS.noise_scale,
+      miu=1.0,
+      gamma=1.0,
+      epsilon_fn=lambda x: FLAGS.epsilon,
+      seed=FLAGS.seed)
 
   num_episodes = FLAGS.num_episodes or getattr(env, 'bsuite_num_episodes')
   experiment.run(
