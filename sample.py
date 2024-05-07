@@ -5,24 +5,23 @@ from bsuite.baselines.tf import boot_dqn
 from bsuite import sweep
 
 print("STARTING TEST SCRIPT\n")
-for bsuite_id in sweep.SWEEP:
-      env = bsuite.load_from_id(bsuite_id)
-      print('bsuite_id={}, settings={}, num_episodes={}'
-        .format(bsuite_id, sweep.SETTINGS[bsuite_id], env.bsuite_num_episodes))
+# for bsuite_id in sweep.SWEEP:
+#       env = bsuite.load_from_id(bsuite_id)
+#       print('bsuite_id={}, settings={}, num_episodes={}'
+#         .format(bsuite_id, sweep.SETTINGS[bsuite_id], env.bsuite_num_episodes))
 
-agents = {}
+#ADD AGENTS NAMES HERE
+agents = ['dqn']
 def getEnvAgent(bsuite_id, agent):
       SAVE_PATH_BASE = './logs/tests/'
       if agent == 'dqn':
             SAVE_PATH = SAVE_PATH_BASE + agent
             ENV = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
-            AGENT = boot_dqn.default_agent(obs_spec=env.observation_spec(), action_spec=env.action_spec())
-      # elif #
+            AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
+            return ENV, AGENT
+      # ADD AGENT INFORMATION HERE
 
-      return ENV, AGENT
 
-
-agents = {}
 
 for agent in agents:
       print("\n-------------------------------------")
