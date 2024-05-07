@@ -3,8 +3,10 @@ from bsuite.baselines import experiment
 from bsuite.baselines.tf import dqn
 from bsuite.baselines.tf import boot_dqn
 from bsuite import sweep
+import bsuite.logging
+import bsuite.experiments
 from bsuite.logging import csv_load
-from bsuite.experiments import summary_analysis
+# from bsuite.experiments import summary_analysis
 
 print("STARTING TEST SCRIPT\n")
 # for bsuite_id in sweep.SWEEP:
@@ -34,15 +36,15 @@ for ag_name in agent_names:
       for bsuite_id in sweep.SWEEP:
             print("\nTESTING BSUITE ID", bsuite_id)
             cur_env, cur_ag = getEnvAgent(bsuite_id, ag_name)
-            experiment.run(cur_ag, cur_env, num_episodes=10)
+            experiment.run(cur_ag, cur_env, num_episodes=cur_env.bsuite_num_episodes)
 
 experiments = {}
 for ag_name in agent_names:
       ag_path = './logs/' + ag_name
       experiments[ag_name] = ag_path
-DF, SWEEP_VARS = csv_load.load_bsuite(experiments)
-BSUITE_SCORE = summary_analysis.bsuite_score(DF, SWEEP_VARS)
-print(BSUITE_SCORE)
+# DF, SWEEP_VARS = csv_load.load_bsuite(experiments)
+# BSUITE_SCORE = summary_analysis.bsuite_score(DF, SWEEP_VARS)
+# print(BSUITE_SCORE)
 
 # SAVE_PATH_DQN = './logs/test_boot'
 # env = bsuite.load_and_record("deep_sea/9", save_path=SAVE_PATH_DQN, overwrite=True)
