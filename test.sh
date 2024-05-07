@@ -1,31 +1,38 @@
 #!/bin/bash
 
-# Fail on any error.
-set -e
-# Display commands being run.
-set -x
+module load anaconda/2023a
 
-# Set up a new virtual environment.
-python3 -m venv bsuite_testing
-source bsuite_testing/bin/activate
+source activate b
 
-# Install all dependencies.
-pip install --upgrade pip setuptools
-pip install .
-pip install .[baselines_jax]
-pip install .[baselines]
+python sample.py
 
-# Install test dependencies.
-pip install .[testing]
+# # Fail on any error.
+# set -e
+# # Display commands being run.
+# set -x
 
-N_CPU=$(grep -c ^processor /proc/cpuinfo)
+# # Set up a new virtual environment.
+# python3 -m venv bsuite_testing
+# source bsuite_testing/bin/activate
 
-# Run static type-checking.
-pytype -j "${N_CPU}" bsuite
+# # Install all dependencies.
+# pip install --upgrade pip setuptools
+# pip install .
+# pip install .[baselines_jax]
+# pip install .[baselines]
 
-# Run all tests.
-pytest -n "${N_CPU}" bsuite
+# # Install test dependencies.
+# pip install .[testing]
 
-# Clean-up.
-deactivate
-rm -rf bsuite_testing/
+# N_CPU=$(grep -c ^processor /proc/cpuinfo)
+
+# # Run static type-checking.
+# pytype -j "${N_CPU}" bsuite
+
+# # Run all tests.
+# pytest -n "${N_CPU}" bsuite
+
+# # Clean-up.
+# deactivate
+# rm -rf bsuite_testing/
+
