@@ -5,9 +5,6 @@ from __future__ import print_function
 import bsuite
 from bsuite.baselines import experiment
 from bsuite.baselines.tf import dqn
-from bsuite.baselines.tf import boot_dqn
-from bsuite.baselines.tf import boot_dqn_squarecb
-from bsuite.baselines.tf import boot_dqn_ucb
 from bsuite.experiments import summary_analysis
 from bsuite.experiments.bandit_noise import analysis as bandit_noise_analysis
 from bsuite.logging import csv_load
@@ -26,5 +23,5 @@ for bsuite_id in sweep.SWEEP:
      print("\nTESTING BSUITE ID", bsuite_id, type(bsuite_id))
      SAVE_PATH = './logs/dqn'
      cur_env = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
-     cur_ag = boot_dqn.default_agent(obs_spec=cur_env.observation_spec(), action_spec=cur_env.action_spec())
+     cur_ag = dqn.default_agent(obs_spec=cur_env.observation_spec(), action_spec=cur_env.action_spec())
      experiment.run(cur_ag, cur_env, num_episodes=cur_env.bsuite_num_episodes)

@@ -4,10 +4,7 @@ from __future__ import print_function
 
 import bsuite
 from bsuite.baselines import experiment
-from bsuite.baselines.tf import dqn
-from bsuite.baselines.tf import boot_dqn
-from bsuite.baselines.tf import boot_dqn_squarecb
-from bsuite.baselines.tf import boot_dqn_ucb
+from bsuite.baselines.tf import dqn_squarecb
 from bsuite.experiments import summary_analysis
 from bsuite.experiments.bandit_noise import analysis as bandit_noise_analysis
 from bsuite.logging import csv_load
