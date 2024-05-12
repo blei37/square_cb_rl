@@ -45,6 +45,7 @@ import numpy as np
 import sonnet as snt
 import tensorflow as tf
 import tree
+import torch 
 
 
 class BootstrappedDqnSquareCB(base.Agent):
@@ -145,16 +146,22 @@ class BootstrappedDqnSquareCB(base.Agent):
     # action = self._rng.choice(np.flatnonzero(q_values == q_values.max()))
     # return int(action)
 
+    """Select values via the SquareCB algorithm."""
     batched_obs = tf.expand_dims(timestep.observation, axis=0)
     q_values = self._forward[self._active_head](batched_obs)[0].numpy()
-    b_index = np.argmax(q_values)
+    b_index = np.argmin(q_values)
     b = q_values[b_index]
     sum_p_a = 0
     p = np.zeros(self._num_actions)
     for action in range(self._num_actions):
-      p[action] = 1/(self._miu + + self._gamma*(b-q_values[action]))
-      sum_p_a += p[action]
+      if action != b_index:
+        print(q_values[action])
+        p[action] = 1/(self._miu + self._gamma*(q_values[action]-b))
+        sum_p_a += p[action]
     p[b_index] = 1 - sum_p_a
+    print(p)
+    p = torch.nn.functional.softmax(torch.tensor(p), dim=0)
+    print(p)
     action = self._rng.choice(self._num_actions, p=p)
     return int(action)
 
@@ -263,7 +270,7 @@ def default_agent(
       mask_prob=0.5,
       noise_scale=0.0,
       miu=1.0,
-      gamma=1.0,
+      gamma=0.9,
       epsilon_fn=lambda t: 10 / (10 + t),
       seed=42,
   )

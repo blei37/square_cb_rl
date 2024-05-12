@@ -95,7 +95,7 @@ def run(bsuite_id: str) -> str:
       mask_prob=FLAGS.mask_prob,
       noise_scale=FLAGS.noise_scale,
       miu=1.0,
-      gamma=1.0,
+      gamma=0.9,
       epsilon_fn=lambda x: FLAGS.epsilon,
       seed=FLAGS.seed)
 
