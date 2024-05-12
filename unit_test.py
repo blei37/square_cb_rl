@@ -18,18 +18,33 @@ def test_run(save_path, bsuite_id, agent):
     )
     experiment.run(agent, env, num_episodes=episodes)
 
-# normal dqn
-SAVE_PATH = './logs/test_dqn_cartpole'
-test_run(SAVE_PATH, "cartpole/0", dqn)
-SAVE_PATH = './logs/test_ucb_cartpole'
-test_run(SAVE_PATH, "cartpole/0", dqn_ucb)
-SAVE_PATH = './logs/test_squareucb_cartpole'
-test_run(SAVE_PATH, "cartpole/0", dqn_squarecb)
+exps=[]
+for name in sweep.SWEEP:
+    n = name.split('/')[0]
+    if n not in exps:
+        exps.append(n)
+print('total envs:', len(exps))
 
-# bootdqn
-SAVE_PATH = './logs/test_boot_dqn_cartpole'
-test_run(SAVE_PATH, "cartpole/0", boot_dqn)
-SAVE_PATH = './logs/test_boot_ucb_cartpole'
-test_run(SAVE_PATH, "cartpole/0", boot_dqn_ucb)
-SAVE_PATH = './logs/test_boot_squareucb_cartpole'
-test_run(SAVE_PATH, "cartpole/0", boot_dqn_squarecb)
+for i,n in enumerate(exps):
+    if 'mnist' in n:
+        continue
+    print('testing env:',i, n)
+    SAVE_PATH = './logs/envtest'
+    test_run(SAVE_PATH, n+"/0", dqn)
+
+
+# # normal dqn
+# SAVE_PATH = './logs/test_dqn_cartpole'
+# test_run(SAVE_PATH, "cartpole/0", dqn)
+# SAVE_PATH = './logs/test_ucb_cartpole'
+# test_run(SAVE_PATH, "cartpole/0", dqn_ucb)
+# SAVE_PATH = './logs/test_squareucb_cartpole'
+# test_run(SAVE_PATH, "cartpole/0", dqn_squarecb)
+
+# # bootdqn
+# SAVE_PATH = './logs/test_boot_dqn_cartpole'
+# test_run(SAVE_PATH, "cartpole/0", boot_dqn)
+# SAVE_PATH = './logs/test_boot_ucb_cartpole'
+# test_run(SAVE_PATH, "cartpole/0", boot_dqn_ucb)
+# SAVE_PATH = './logs/test_boot_squareucb_cartpole'
+# test_run(SAVE_PATH, "cartpole/0", boot_dqn_squarecb)
