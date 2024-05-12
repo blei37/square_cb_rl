@@ -147,19 +147,15 @@ class BootstrappedDqnSquareCB(base.Agent):
     # return int(action)
 
     """Select values via the SquareCB algorithm."""
+    ep = 1e-8
     batched_obs = tf.expand_dims(timestep.observation, axis=0)
     q_values = self._forward[self._active_head](batched_obs)[0].numpy()
-    b_index = np.argmin(q_values)
+    p = tf.nn.softmax(q_values)
+    b_index = np.argmax(p)
     b = q_values[b_index]
-    sum_p_a = 0
-    p = np.zeros(self._num_actions)
-    for action in range(self._num_actions):
-      if action != b_index:
-        print(q_values[action])
-        p[action] = 1/(self._miu + self._gamma*(q_values[action]-b))
-        sum_p_a += p[action]
-    p[b_index] = 1 - sum_p_a
-    p = torch.nn.functional.softmax(torch.tensor(p), dim=0)
+    p = 1/(self._miu + self._gamma*(b-q_values)+ep)
+    p[b_index] = 0
+    p[b_index] = 1 - tf.math.reduce_sum(p)
     action = self._rng.choice(self._num_actions, p=p)
     return int(action)
 
