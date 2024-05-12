@@ -4,6 +4,8 @@ from bsuite.baselines.tf import dqn_ucb, dqn_squarecb, dqn
 from bsuite.baselines.tf import boot_dqn
 from bsuite.baselines.tf import boot_dqn_squarecb
 from bsuite.baselines.tf import boot_dqn_ucb
+from bsuite.baselines.tf import soft_actor_critic
+
 from bsuite import sweep
 import bsuite.logging
 import bsuite.experiments
