@@ -88,6 +88,7 @@ class DQNSquareCB(base.Agent):
     p = 1/(self._miu + self._gamma*(b-p)+ep)
     p[b_index] = 0
     p[b_index] = 1 - np.sum(p)
+    p = np.nan_to_num(p)
     action = self._rng.choice(self._num_actions, p=p)
     return int(action)
 
