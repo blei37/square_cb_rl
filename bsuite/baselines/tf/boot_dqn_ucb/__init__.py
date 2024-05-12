@@ -15,6 +15,6 @@
 # ============================================================================
 """A simple implementation of Bootstrapped DQN with prior networks."""
 
-from bsuite.baselines.tf.boot_dqn.agent import BootstrappedDqn
-from bsuite.baselines.tf.boot_dqn.agent import default_agent
-from bsuite.baselines.tf.boot_dqn.agent import make_ensemble
+from bsuite.baselines.tf.boot_dqn_ucb.agent import BootstrappedDqnUCB
+from bsuite.baselines.tf.boot_dqn_ucb.agent import default_agent
+from bsuite.baselines.tf.boot_dqn_ucb.agent import make_ensemble

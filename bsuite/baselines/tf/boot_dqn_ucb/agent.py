@@ -47,7 +47,7 @@ import tensorflow as tf
 import tree
 
 
-class BootstrappedDqn(base.Agent):
+class BootstrappedDqnUCB(base.Agent):
   """Bootstrapped DQN with additive prior functions."""
 
   def __init__(
@@ -98,7 +98,7 @@ class BootstrappedDqn(base.Agent):
     tf.random.set_seed(seed)
 
     # Def action counts
-    self._action_counts = tf.zeros(shape=(action_spec.num_values,))
+    self._action_counts = np.zeros((action_spec.num_values,))
 
   @tf.function
   def _step(self, transitions: Sequence[tf.Tensor]):
@@ -138,8 +138,11 @@ class BootstrappedDqn(base.Agent):
     # UCB-style exploration.
     batched_obs = tf.expand_dims(timestep.observation, axis=0)
     q_values = self._forward[self._active_head](batched_obs)[0].numpy()
-    q_values = q_values + tf.sqrt(4*tf.log(self._total_steps+1) / self._action_counts + 1e-6)
+    q_values = tf.linalg.normalize(q_values)[0]
+    q_values = q_values + tf.math.sqrt((4*tf.math.log(float(self._total_steps+1))) / (self._action_counts + 1e-6))
+    q_values = q_values.numpy()
     action = self._rng.choice(np.flatnonzero(q_values == q_values.max()))
+    self._action_counts[action] += 1
     return int(action)
 
   def update(
@@ -227,12 +230,12 @@ def default_agent(
     obs_spec: specs.Array,
     action_spec: specs.DiscreteArray,
     num_ensemble: int = 20,
-) -> BootstrappedDqn:
+) -> BootstrappedDqnUCB:
   """Initialize a Bootstrapped DQN agent with default parameters."""
   ensemble = make_ensemble(
       num_actions=action_spec.num_values, num_ensemble=num_ensemble)
   optimizer = snt.optimizers.Adam(learning_rate=1e-3)
-  return BootstrappedDqn(
+  return BootstrappedDqnUCB(
       obs_spec=obs_spec,
       action_spec=action_spec,
       ensemble=ensemble,

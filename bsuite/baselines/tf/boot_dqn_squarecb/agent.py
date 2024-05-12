@@ -94,8 +94,9 @@ class BootstrappedDqnSquareCB(base.Agent):
     self._noise_scale = noise_scale
     self._rng = np.random.RandomState(seed)
     self._discount = discount
-    self._miu = miu
-    self._gamma = gamma
+    self._miu = self._num_actions
+    self._gamma = self._num_actions*6
+
 
     # Agent state.
     self._total_steps = tf.Variable(1)
@@ -147,21 +148,16 @@ class BootstrappedDqnSquareCB(base.Agent):
     # return int(action)
 
     """Select values via the SquareCB algorithm."""
+    ep = 1e-8
     batched_obs = tf.expand_dims(timestep.observation, axis=0)
     q_values = self._forward[self._active_head](batched_obs)[0].numpy()
-    b_index = np.argmin(q_values)
-    b = q_values[b_index]
-    sum_p_a = 0
-    p = np.zeros(self._num_actions)
-    for action in range(self._num_actions):
-      if action != b_index:
-        print(q_values[action])
-        p[action] = 1/(self._miu + self._gamma*(q_values[action]-b))
-        sum_p_a += p[action]
-    p[b_index] = 1 - sum_p_a
-    print(p)
-    p = torch.nn.functional.softmax(torch.tensor(p), dim=0)
-    print(p)
+    p = q_values
+    p = (p - p.min())/(p.max()-p.min())
+    b_index = np.argmax(p)
+    b = p[b_index]
+    p = 1/(self._miu + self._gamma*(b-p)+ep)
+    p[b_index] = 0
+    p[b_index] = 1 - np.sum(p)
     action = self._rng.choice(self._num_actions, p=p)
     return int(action)
 

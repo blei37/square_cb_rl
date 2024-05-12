@@ -72,7 +72,7 @@ def load_multiple_runs(
   # Convert any inputs to dictionary format.
   if isinstance(path_collection, six.string_types):
     path_collection = {path_collection: path_collection}
-  if not isinstance(path_collection, collections.Mapping):
+  if not isinstance(path_collection, dict):
     path_collection = {path: path for path in path_collection}
 
   # Loop through multiple bsuite runs, and apply single_load_fn to each.

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /etc/profile
+
 module load anaconda/2023a
 
 source activate b
