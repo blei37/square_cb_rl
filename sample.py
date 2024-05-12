@@ -50,7 +50,7 @@ def getEnvAgent(bsuite_id, ag):
       # ADD AGENT INFORMATION HERE
       return ENV, AGENT
 
-for ag_name in agent_names[2:]:
+for ag_name in agent_names:
       print("\n-------------------------------------")
       print('AGENT', ag_name)
       # for bsuite_id in sweep.SWEEP:

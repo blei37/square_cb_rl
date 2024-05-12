@@ -159,9 +159,7 @@ class BootstrappedDqnSquareCB(base.Agent):
         p[action] = 1/(self._miu + self._gamma*(q_values[action]-b))
         sum_p_a += p[action]
     p[b_index] = 1 - sum_p_a
-    print(p)
     p = torch.nn.functional.softmax(torch.tensor(p), dim=0)
-    print(p)
     action = self._rng.choice(self._num_actions, p=p)
     return int(action)
 
