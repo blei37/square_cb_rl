@@ -70,6 +70,8 @@ class DQNSquareCB(base.Agent):
     self._target_network = copy.deepcopy(network)
     self._forward = tf.function(network)
     self._total_steps = tf.Variable(0)
+    self._miu = self._num_actions
+    self._gamma = self._num_actions*6
 
   def select_action(self, timestep: dm_env.TimeStep) -> base.Action:
     # Epsilon-greedy policy.
@@ -78,13 +80,14 @@ class DQNSquareCB(base.Agent):
     ep = 1e-8
     observation = tf.convert_to_tensor(timestep.observation[None, ...])
     # Greedy policy, breaking ties uniformly at random.
-    q_values = self._forward(observation)
-    p = tf.nn.softmax(q_values)
+    q_values = self._forward(observation)[0]
+    p = q_values.numpy()
+    p = (p - p.min())/(p.max()-p.min())
     b_index = np.argmax(p)
-    b = q_values[b_index]
-    p = 1/(self._miu + self._gamma*(b-q_values)+ep)
+    b = p[b_index]
+    p = 1/(self._miu + self._gamma*(b-p)+ep)
     p[b_index] = 0
-    p[b_index] = 1 - tf.math.reduce_sum(p)
+    p[b_index] = 1 - np.sum(p)
     action = self._rng.choice(self._num_actions, p=p)
     return int(action)
 
