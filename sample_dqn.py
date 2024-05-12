@@ -20,6 +20,8 @@ import plotnine as gg
 
 print('AGENT DQN')
 for bsuite_id in sweep.SWEEP:
+     # if "mnist" not in bsuite_id:
+     #      continue
      print("\nTESTING BSUITE ID", bsuite_id, type(bsuite_id))
      SAVE_PATH = './logs/dqn'
      cur_env = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
