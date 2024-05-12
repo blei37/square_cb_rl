@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-"""A simple implementation of Bootstrapped DQN with prior networks."""
+"""A simple TensorFlow 2-based DQN implementation."""
 
-from bsuite.baselines.tf.boot_dqn.agent import BootstrappedDqn
-from bsuite.baselines.tf.boot_dqn.agent import default_agent
-from bsuite.baselines.tf.boot_dqn.agent import make_ensemble
+from bsuite.baselines.tf.dqn_ucb.agent import default_agent
+from bsuite.baselines.tf.dqn_ucb.agent import DQNUCB
+

@@ -137,10 +137,12 @@ class BootstrappedDqnUCB(base.Agent):
     """Select values via Thompson sampling, then use  policy."""
     # UCB-style exploration.
     batched_obs = tf.expand_dims(timestep.observation, axis=0)
-    q_values = self._forward[self._active_head](batched_obs)[0].numpy()
-    q_values = q_values + tf.math.sqrt((4*tf.math.log(float(self._total_steps+1))) / self._action_counts + 1e-6)
+    q_values = self._forward[self._active_head](batched_obs)[0]
+    q_values = tf.linalg.normalize(q_values) + tf.math.sqrt((4*tf.math.log(float(self._total_steps+1))) / self._action_counts + 1e-6)
     q_values = q_values.numpy()
     action = self._rng.choice(np.flatnonzero(q_values == q_values.max()))
+    self._action_counts[action] += 1
+
     return int(action)
 
   def update(

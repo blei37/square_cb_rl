@@ -13,8 +13,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ============================================================================
-"""A simple TensorFlow 2-based DQN implementation."""
+"""Basic test coverage for agent training."""
 
-from bsuite.baselines.tf.dqn.agent import default_agent
-from bsuite.baselines.tf.dqn.agent import DQN
+from absl.testing import absltest
+from absl.testing import parameterized
 
+from bsuite import bsuite
+from bsuite import sweep
+from bsuite.baselines import experiment
+from bsuite.baselines.tf import dqn_ucb
+
+
+class RunTest(parameterized.TestCase):
+
+  @parameterized.parameters(*sweep.TESTING)
+  def test_run(self, bsuite_id: str):
+    env = bsuite.load_from_id(bsuite_id)
+
+    agent = dqn_ucb.default_agent(
+        env.observation_spec(), env.action_spec())
+
+    experiment.run(
+        agent=agent,
+        environment=env,
+        num_episodes=5)
+
+
+if __name__ == '__main__':
+  absltest.main()
