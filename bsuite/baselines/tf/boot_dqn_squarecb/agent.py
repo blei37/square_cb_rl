@@ -94,8 +94,9 @@ class BootstrappedDqnSquareCB(base.Agent):
     self._noise_scale = noise_scale
     self._rng = np.random.RandomState(seed)
     self._discount = discount
-    self._miu = miu
-    self._gamma = gamma
+    self._miu = self._num_actions
+    self._gamma = self._num_actions*6
+
 
     # Agent state.
     self._total_steps = tf.Variable(1)
@@ -150,12 +151,13 @@ class BootstrappedDqnSquareCB(base.Agent):
     ep = 1e-8
     batched_obs = tf.expand_dims(timestep.observation, axis=0)
     q_values = self._forward[self._active_head](batched_obs)[0].numpy()
-    p = tf.nn.softmax(q_values)
+    p = q_values
+    p = (p - p.min())/(p.max()-p.min())
     b_index = np.argmax(p)
-    b = q_values[b_index]
-    p = 1/(self._miu + self._gamma*(b-q_values)+ep)
+    b = p[b_index]
+    p = 1/(self._miu + self._gamma*(b-p)+ep)
     p[b_index] = 0
-    p[b_index] = 1 - tf.math.reduce_sum(p)
+    p[b_index] = 1 - np.sum(p)
     action = self._rng.choice(self._num_actions, p=p)
     return int(action)
 
