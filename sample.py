@@ -25,46 +25,45 @@ gg.theme_set(gg.theme_bw(base_size=16, base_family='serif'))
 gg.theme_update(figure_size=(12, 8), panel_spacing_x=0.5, panel_spacing_y=0.5)
 warnings.filterwarnings('ignore')
 
-print("STARTING TEST SCRIPT\n")
+print("STARTING DATA ANALYSIS\n")
 # for bsuite_id in sweep.SWEEP:
 #       env = bsuite.load_from_id(bsuite_id)
 #       print('bsuite_id={}, settings={}, num_episodes={}'
 #         .format(bsuite_id, sweep.SETTINGS[bsuite_id], env.bsuite_num_episodes))
 
 # ADD AGENTS NAMES HERE
-agent_names = ['boot_dqn', 'boot_dqn_squarecb', 'boot_dqn_ucb']
-def getEnvAgent(bsuite_id, ag):
-      SAVE_PATH = './logs/' + ag
-      ENV = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
+agent_names = ['dqn', 'dqn_squarecb', 'dqn_ucb']
+# def getEnvAgent(bsuite_id, ag):
+#       SAVE_PATH = './logs/' + ag
+#       ENV = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
       
-      #baseline
-      AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
+#       #baseline
+#       AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
 
-      if ag == 'boot_dqn':
-            AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
-      elif ag == "boot_dqn_squarecb":
-            AGENT = boot_dqn_squarecb.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
-      elif ag == "boot_dqn_ucb":
-            AGENT = boot_dqn_ucb.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
+#       if ag == 'boot_dqn':
+#             AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
+#       elif ag == "boot_dqn_squarecb":
+#             AGENT = boot_dqn_squarecb.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
+#       elif ag == "boot_dqn_ucb":
+#             AGENT = boot_dqn_ucb.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
       
-      # ADD AGENT INFORMATION HERE
-      return ENV, AGENT
+#       # ADD AGENT INFORMATION HERE
+#       return ENV, AGENT
 
-for ag_name in agent_names:
-      print("\n-------------------------------------")
-      print('AGENT', ag_name)
-      # for bsuite_id in sweep.SWEEP:
-      for bsuite_id in sweep.SWEEP:
-            print("\nTESTING BSUITE ID", bsuite_id, type(bsuite_id))
-            cur_env, cur_ag = getEnvAgent(bsuite_id, ag_name)
-            experiment.run(cur_ag, cur_env, num_episodes=cur_env.bsuite_num_episodes)
+# for ag_name in agent_names:
+#       print("\n-------------------------------------")
+#       print('AGENT', ag_name)
+#       # for bsuite_id in sweep.SWEEP:
+#       for bsuite_id in sweep.SWEEP:
+#             print("\nTESTING BSUITE ID", bsuite_id, type(bsuite_id))
+#             cur_env, cur_ag = getEnvAgent(bsuite_id, ag_name)
+#             experiment.run(cur_ag, cur_env, num_episodes=cur_env.bsuite_num_episodes)
 
 experiments = {}
 for ag_name in agent_names:
       ag_path = './logs/' + ag_name
       experiments[ag_name] = ag_path
 
-print("\n READY TO ANALYZE DATA")
 DF, SWEEP_VARS = csv_load.load_bsuite(experiments)
 BSUITE_SCORE = summary_analysis.bsuite_score(DF, SWEEP_VARS)
 BSUITE_SUMMARY = summary_analysis.ave_score_by_tag(BSUITE_SCORE, SWEEP_VARS)
@@ -72,24 +71,5 @@ print("BSUITE_SCORE:", BSUITE_SCORE)
 print("BSUITE_SUMMARY:", BSUITE_SUMMARY)
 bandit_noise_df = DF[DF.bsuite_env == 'bandit_noise'].copy()
 summary_analysis.plot_single_experiment(BSUITE_SCORE, 'bandit_noise', SWEEP_VARS)
-bandit_noise_analysis.plot_average(bandit_noise_df, SWEEP_VARS)
+bandit_noise_analysis.plot_average(bandit_noise_df, SWEEP_VARS) 
 # __radar_fig__ = summary_analysis.bsuite_radar_plot(BSUITE_SUMMARY, SWEEP_VARS)
-# BSUITE_SCORE = summary_analysis.bsuite_score(DF, SWEEP_VARS)
-# print(BSUITE_SCORE)
-
-# SAVE_PATH_DQN = './logs/test_boot'
-# env = bsuite.load_and_record("deep_sea/9", save_path=SAVE_PATH_DQN, overwrite=True)
-# agent = boot_dqn.default_agent(
-#       obs_spec=env.observation_spec(),
-#       action_spec=env.action_spec()
-# )
-# experiment.run(agent, env, num_episodes=env.bsuite_num_episodes)
-
-# SAVE_PATH_DQN = './logs/test_boot1'
-# for bsuite_id in sweep.SWEEP:
-#   env = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH_DQN, overwrite=True)
-#   agent = dqn.default_agent(
-#       obs_spec=env.observation_spec(),
-#       action_spec=env.action_spec()
-#   )
-#   experiment.run(agent, env, num_episodes=10)
