@@ -1,3 +1,0 @@
-steps,episode,total_return,episode_len,episode_return,raw_return,best_episode
-32,1,31.0,32,31.0,31.0,31.0
-68,2,66.0,36,35.0,66.0,35.0
