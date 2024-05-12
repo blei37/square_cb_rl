@@ -36,7 +36,7 @@ agent_names = ['boot_dqn', 'boot_dqn_squarecb', 'boot_dqn_ucb']
 def getEnvAgent(bsuite_id, ag):
       SAVE_PATH = './logs/' + ag
       ENV = bsuite.load_and_record(bsuite_id, save_path=SAVE_PATH, overwrite=True)
-
+      
       #baseline
       AGENT = boot_dqn.default_agent(obs_spec=ENV.observation_spec(), action_spec=ENV.action_spec())
 
@@ -50,11 +50,11 @@ def getEnvAgent(bsuite_id, ag):
       # ADD AGENT INFORMATION HERE
       return ENV, AGENT
 
-for ag_name in agent_names:
+for ag_name in agent_names[2:]:
       print("\n-------------------------------------")
       print('AGENT', ag_name)
       # for bsuite_id in sweep.SWEEP:
-      for bsuite_id in ['bandit/0']:
+      for bsuite_id in sweep.SWEEP:
             print("\nTESTING BSUITE ID", bsuite_id, type(bsuite_id))
             cur_env, cur_ag = getEnvAgent(bsuite_id, ag_name)
             experiment.run(cur_ag, cur_env, num_episodes=cur_env.bsuite_num_episodes)
