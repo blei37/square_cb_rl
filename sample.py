@@ -4,7 +4,7 @@ from __future__ import print_function
 
 import bsuite
 from bsuite.baselines import experiment
-from bsuite.baselines.tf import dqn
+from bsuite.baselines.tf import dqn_ucb
 from bsuite.baselines.tf import boot_dqn
 from bsuite.baselines.tf import boot_dqn_squarecb
 from bsuite.baselines.tf import boot_dqn_ucb
