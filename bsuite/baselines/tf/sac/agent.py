@@ -47,7 +47,7 @@ import tensorflow as tf
 import tree
 
 
-class BootstrappedDqnUCB(base.Agent):
+class Sac(base.Agent):
   """Bootstrapped DQN with additive prior functions."""
 
   def __init__(
@@ -97,9 +97,6 @@ class BootstrappedDqnUCB(base.Agent):
     self._active_head = 0
     tf.random.set_seed(seed)
 
-    # Def action counts
-    self._action_counts = tf.zeros(shape=(action_spec.num_values,))
-
   @tf.function
   def _step(self, transitions: Sequence[tf.Tensor]):
     """Does a step of SGD for the whole ensemble over `transitions`."""
@@ -134,12 +131,13 @@ class BootstrappedDqnUCB(base.Agent):
           dest.assign(src)
 
   def select_action(self, timestep: dm_env.TimeStep) -> base.Action:
-    """Select values via Thompson sampling, then use  policy."""
-    # UCB-style exploration.
+    """Select values via Thompson sampling, then use epsilon-greedy policy."""
+    if self._rng.rand() < self._epsilon_fn(self._total_steps.numpy()):
+      return self._rng.randint(self._num_actions)
+
+    # Greedy policy, breaking ties uniformly at random.
     batched_obs = tf.expand_dims(timestep.observation, axis=0)
     q_values = self._forward[self._active_head](batched_obs)[0].numpy()
-    q_values = q_values + tf.math.sqrt((4*tf.math.log(float(self._total_steps+1))) / self._action_counts + 1e-6)
-    q_values = q_values.numpy()
     action = self._rng.choice(np.flatnonzero(q_values == q_values.max()))
     return int(action)
 
@@ -228,12 +226,12 @@ def default_agent(
     obs_spec: specs.Array,
     action_spec: specs.DiscreteArray,
     num_ensemble: int = 20,
-) -> BootstrappedDqnUCB:
+) -> Sac:
   """Initialize a Bootstrapped DQN agent with default parameters."""
   ensemble = make_ensemble(
       num_actions=action_spec.num_values, num_ensemble=num_ensemble)
   optimizer = snt.optimizers.Adam(learning_rate=1e-3)
-  return BootstrappedDqnUCB(
+  return Sac(
       obs_spec=obs_spec,
       action_spec=action_spec,
       ensemble=ensemble,
