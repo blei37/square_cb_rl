@@ -47,7 +47,7 @@ import tensorflow as tf
 import tree
 
 
-class BootstrappedDqn(base.Agent):
+class BootstrappedDqnUCB(base.Agent):
   """Bootstrapped DQN with additive prior functions."""
 
   def __init__(
@@ -227,12 +227,12 @@ def default_agent(
     obs_spec: specs.Array,
     action_spec: specs.DiscreteArray,
     num_ensemble: int = 20,
-) -> BootstrappedDqn:
+) -> BootstrappedDqnUCB:
   """Initialize a Bootstrapped DQN agent with default parameters."""
   ensemble = make_ensemble(
       num_actions=action_spec.num_values, num_ensemble=num_ensemble)
   optimizer = snt.optimizers.Adam(learning_rate=1e-3)
-  return BootstrappedDqn(
+  return BootstrappedDqnUCB(
       obs_spec=obs_spec,
       action_spec=action_spec,
       ensemble=ensemble,
