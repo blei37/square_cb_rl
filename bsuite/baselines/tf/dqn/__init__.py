@@ -16,5 +16,5 @@
 """A simple TensorFlow 2-based DQN implementation."""
 
 from bsuite.baselines.tf.dqn.agent import default_agent
-from bsuite.baselines.tf.dqn.agent import dqn
+from bsuite.baselines.tf.dqn.agent import DQN
 

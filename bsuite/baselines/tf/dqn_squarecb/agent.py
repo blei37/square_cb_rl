@@ -88,12 +88,6 @@ class DQNSquareCB(base.Agent):
     action = self._rng.choice(self._num_actions, p=p)
     return int(action)
 
-
-
-
-    action = self._rng.choice(np.flatnonzero(q_values == q_values.max()))
-    return int(action)
-
   def update(
       self,
       timestep: dm_env.TimeStep,

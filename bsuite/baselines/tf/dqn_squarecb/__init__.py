@@ -15,6 +15,6 @@
 # ============================================================================
 """A simple TensorFlow 2-based DQN implementation."""
 
-from bsuite.baselines.tf.dqn_ucb.agent import default_agent
-from bsuite.baselines.tf.dqn_ucb.agent import dqn_ucb
+from bsuite.baselines.tf.dqn_squarecb.agent import default_agent
+from bsuite.baselines.tf.dqn_squarecb.agent import DQNSquareCB
 

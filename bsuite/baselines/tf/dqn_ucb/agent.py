@@ -71,6 +71,9 @@ class DQNUCB(base.Agent):
     self._forward = tf.function(network)
     self._total_steps = tf.Variable(0)
 
+    # Def action counts
+    self._action_counts = tf.zeros(shape=(action_spec.num_values,))
+
   def select_action(self, timestep: dm_env.TimeStep) -> base.Action:
     # Epsilon-greedy policy.
     if self._rng.rand() < self._epsilon:
@@ -79,9 +82,10 @@ class DQNUCB(base.Agent):
     observation = tf.convert_to_tensor(timestep.observation[None, ...])
     # Greedy policy, breaking ties uniformly at random.
     q_values = self._forward(observation)
-    q_values = q_values + tf.math.sqrt((4*tf.math.log(float(self._total_steps+1))) / self._action_counts + 1e-6)
+    q_values = tf.linalg.normalize(q_values) + tf.math.sqrt((4*tf.math.log(float(self._total_steps+1))) / self._action_counts + 1e-6)
     q_values = q_values.numpy()
     action = self._rng.choice(np.flatnonzero(q_values == q_values.max()))
+    self._action_counts[action] += 1
     return int(action)
 
   def update(
