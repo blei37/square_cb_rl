@@ -4,6 +4,8 @@ from bsuite.baselines.tf import dqn
 from bsuite.baselines.tf import boot_dqn
 from bsuite.baselines.tf import boot_dqn_squarecb
 from bsuite.baselines.tf import boot_dqn_ucb
+from bsuite.baselines.tf import soft_actor_critic
+
 from bsuite import sweep
 import bsuite.logging
 import bsuite.experiments
@@ -17,5 +19,5 @@ def test_run(save_path, bsuite_id, agent):
     )
     experiment.run(agent, env, num_episodes=env.bsuite_num_episodes)
 
-SAVE_PATH = './logs/test_boot_ucb_cartpole'
-test_run(SAVE_PATH, "cartpole/0", boot_dqn_ucb)
+SAVE_PATH = './logs/sac-test'
+test_run(SAVE_PATH, "bandit/0", soft_actor_critic)
